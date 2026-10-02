@@ -29,7 +29,7 @@ class Account(Base):
     Name = Column(String, nullable=False)
     Password =  Column(String, nullable=False)
     Date_Created = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text("now()"))
-    Phone_number = Column(String, nullable=False)
+
 
 
 class vote(Base):
