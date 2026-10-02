@@ -24,6 +24,10 @@ def Create_Account(data: schemas.Account_info, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(create_account)
 
+
+    print("CREATED ID:", create_account.id)
+    print("CREATED EMAIL:", create_account.Gmail)
+
     return create_account
 
 
@@ -56,12 +60,15 @@ def get_all_Accounts(db: Session = Depends(get_db), user: int = Depends(oauth2.g
 
 
 @router.get("/Users/{id}", response_model=schemas.Account_info_Out)
-def retrive_Account(id: int, db: Session = Depends(get_db)):
+def retrive_Account(id: int, db: Session = Depends(get_db), user: int = Depends(oauth2.get_user)):
 
     account = db.query(models.Account).filter(models.Account.id == id).first()
 
     if account == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+
+    if account.id != user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="This is not your account")
     
     
 
