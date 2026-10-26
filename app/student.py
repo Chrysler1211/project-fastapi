@@ -26,7 +26,10 @@ def message():
 
     return {"Message": "HEE HEE"}
 
+@app.get("/hello")
+def new_message():
 
+    return {"Message": "Chrysler"}
 
 
 
