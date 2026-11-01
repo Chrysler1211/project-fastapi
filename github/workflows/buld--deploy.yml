@@ -1,0 +1,12 @@
+name: Github Actions
+
+on: [push, pulling_request]
+
+job:
+  job1:
+    runs-on: ubuntu-latest
+    steps:
+    - name: pulling this repo
+      uses: actions/checkout@v7
+    - name: Hello chrysler
+      run:  echo "Sup C"
