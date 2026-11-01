@@ -1,4 +1,6 @@
 
+
+
 from fastapi import FastAPI, status, HTTPException, Depends, Response, APIRouter
 from typing import List
 from fastapi.security import OAuth2PasswordRequestForm
@@ -31,7 +33,7 @@ def Create_Account(data: schemas.Account_info, db: Session = Depends(get_db)):
     return create_account
 
 
-@router.post("/Login")
+@router.post("/Login", response_model=schemas.Token)
 def user_login(data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
 
     login = db.query(models.Account).filter(models.Account.Gmail == data.username).first()
@@ -44,12 +46,12 @@ def user_login(data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
 
     access_token = oauth2.create_token({"user_id": login.id})
 
-    return {"Access_token": access_token, "Type": "bearer"}
+    return {"id": login.id, "access_token": access_token, "token_type": "bearer"}
 
 
 
 
-@router.get("/Users")
+@router.post("/Users")
 def get_all_Accounts(db: Session = Depends(get_db), user: int = Depends(oauth2.get_user)):
 
     all = db.query(models.Account).all()
@@ -60,19 +62,20 @@ def get_all_Accounts(db: Session = Depends(get_db), user: int = Depends(oauth2.g
 
 
 @router.get("/Users/{id}", response_model=schemas.Account_info_Out)
-def retrive_Account(id: int, db: Session = Depends(get_db), user: int = Depends(oauth2.get_user)):
+def retrive_account(id: int, db: Session = Depends(get_db), user: int = Depends(oauth2.get_user)):
 
-    account = db.query(models.Account).filter(models.Account.id == id).first()
+    retrive_user = db.query(models.Account).filter(models.Account.id == id).first()
 
-    if account == None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    if retrive_user == None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="NOT FOUND")
 
-    if account.id != user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="This is not your account")
-    
-    
 
-    return account
 
+    if retrive_user.id != user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                            detail="Your not the owner of the account")
+
+    return retrive_user
 
 

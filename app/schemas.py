@@ -85,3 +85,11 @@ class Account_info_Out(BaseModel):
     class config():
 
         orm_mode = True
+
+class Token(BaseModel):
+    id: int
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    id: int | None = None

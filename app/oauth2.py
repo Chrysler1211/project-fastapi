@@ -25,7 +25,7 @@ def create_token(data: dict):
 
 
     expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode({"exp": expire})
+    to_encode.update({"exp": expire})
 
     token = jwt.encode(key=SECRET_KEY, algorithm=ALGORITHM, payload=to_encode)
     
@@ -41,7 +41,7 @@ def verify(token: str, credentials_exception):
 
         if id is None:
             raise credentials_exception
-        token_info = schemas.token(id=id)
+        token_info = schemas.TokenData(id=id)
 
     except InvalidTokenError:
         raise credentials_exception
@@ -56,7 +56,7 @@ def get_user(token: str = Depends(oauth2), db: Session = Depends(get_db)):
                         headers={"WWW-authenticate": "Bearer"}, detail="Invalid Token")
 
     token = verify(token, credentials_exception)
-
+    
     users = db.query(models.Account).filter(models.Account.id == token.id).first()
 
     return users
